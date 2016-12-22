@@ -1,0 +1,65 @@
+*** writepng.c	2009-06-12 22:58:50.000000000 +0200
+--- writepng.c	2016-12-22 16:33:10.407243718 +0100
+***************
+*** 309,315 ****
+       }
+       /* Set error handling.  REQUIRED if you aren't supplying your own *
+        * error hadnling functions in the png_create_write_struct() call. */
+!      if (setjmp(png_ptr->jmpbuf)) {
+  	  /* If we get here, we had a problem reading the file */
+  	  fclose(fp);
+  	  png_destroy_write_struct(&png_ptr, (png_infopp) NULL);
+--- 309,315 ----
+       }
+       /* Set error handling.  REQUIRED if you aren't supplying your own *
+        * error hadnling functions in the png_create_write_struct() call. */
+!      if (setjmp(png_jmpbuf(png_ptr))) {
+  	  /* If we get here, we had a problem reading the file */
+  	  fclose(fp);
+  	  png_destroy_write_struct(&png_ptr, (png_infopp) NULL);
+***************
+*** 328,340 ****
+         compression_type and filter_type MUST currently be
+         PNG_COMPRESSION_TYPE_BASE and PNG_FILTER_TYPE_BASE. REQUIRED */
+  
+       if (!eight_bit)
+  	  png_set_IHDR(png_ptr, info_ptr, width, height, 8 /* bit_depth */ ,
+  		       PNG_COLOR_TYPE_RGB,
+  		       PNG_INTERLACE_NONE,
+  		       PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+       else {
+- 	  png_colorp palette;
+  
+  	  png_set_IHDR(png_ptr, info_ptr, width, height, 8 /* bit_depth */ ,
+  		       PNG_COLOR_TYPE_PALETTE,
+--- 328,340 ----
+         compression_type and filter_type MUST currently be
+         PNG_COMPRESSION_TYPE_BASE and PNG_FILTER_TYPE_BASE. REQUIRED */
+  
++      png_colorp palette;
+       if (!eight_bit)
+  	  png_set_IHDR(png_ptr, info_ptr, width, height, 8 /* bit_depth */ ,
+  		       PNG_COLOR_TYPE_RGB,
+  		       PNG_INTERLACE_NONE,
+  		       PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+       else {
+  
+  	  png_set_IHDR(png_ptr, info_ptr, width, height, 8 /* bit_depth */ ,
+  		       PNG_COLOR_TYPE_PALETTE,
+***************
+*** 434,440 ****
+       png_write_end(png_ptr, info_ptr);
+  
+       /* if you malloced the palette, free it here */
+!      free(info_ptr->palette);
+  
+       /* if you allocated any text comments, free them here */
+  
+--- 434,440 ----
+       png_write_end(png_ptr, info_ptr);
+  
+       /* if you malloced the palette, free it here */
+!      png_free(png_ptr, palette);
+  
+       /* if you allocated any text comments, free them here */
+  
